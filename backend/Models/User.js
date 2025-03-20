@@ -1,3 +1,4 @@
+
 import mongoose from 'mongoose';
 
 const UserSchema = new mongoose.Schema({
@@ -6,5 +7,7 @@ const UserSchema = new mongoose.Schema({
     password: { type: String, required: true }
 }, { timestamps: true });
 
-const UserModel = mongoose.model('users', UserSchema);
-export default UserModel;
+const User = mongoose.model('users', UserSchema);
+
+// Fix the export
+export { User as default };
