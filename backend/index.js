@@ -1,6 +1,7 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 import connectDB from './Models/db.js';
 import authRouter from './Routes/AuthRouter.js';
 import productRouter from './Routes/ProductRouter.js';
@@ -20,6 +21,10 @@ app.use((req, res, next) => {
     next();
 });
 
+// Gemini API setup
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
+
 // Database Connection
 try {
     await connectDB();
@@ -32,6 +37,34 @@ try {
 app.use('/auth', authRouter);
 app.use('/products', productRouter);
 
+// Test route
+app.get("/", (req, res) => {
+    res.send("🚀 Assignment Generator Backend is running");
+});
+
+// Assignment generation route
+app.post("/api/generate-questions", async (req, res) => {
+    const { topic } = req.body;
+
+    if (!topic) {
+        return res.status(400).json({ error: "Topic is required." });
+    }
+
+    try {
+        const result = await model.generateContent(`Generate 5 assignment questions for the topic: ${topic}`);
+        const responseText = await result.response.text();
+        const questions = responseText
+            .split("\n")
+            .map(q => q.replace(/^\d+[\.\)]\s*/, '').trim())
+            .filter((line) => line !== "");
+
+        res.json({ questions });
+    } catch (err) {
+        console.error("❌ Gemini API Error:", err);
+        res.status(500).json({ error: "Failed to fetch questions from Gemini API." });
+    }
+});
+
 // Error handling middleware
 app.use((err, req, res, next) => {
     console.error(err.stack);
@@ -43,4 +76,4 @@ app.use((err, req, res, next) => {
 });
 
 const PORT = process.env.PORT || 8080;
-app.listen(PORT, () => console.log(`Server running on port ${PORT} 🚀`));
+app.listen(PORT, () => console.log(`✅ Server running on port ${PORT} 🚀`));
