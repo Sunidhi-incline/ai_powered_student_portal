@@ -83,7 +83,7 @@ const Dashboard3 = () => {
   return (
     <div className="dashboard3-container">
       <div className="header">
-        <img src="/logo.png" alt="College Logo" className="college-logo" />
+        <img src="/logo.jpg" alt="College Logo" className="college-logo" />
         <div className="title-section">
           <h2 className="main-title">
             Assignment Questions for "{decodeURIComponent(topic)}"

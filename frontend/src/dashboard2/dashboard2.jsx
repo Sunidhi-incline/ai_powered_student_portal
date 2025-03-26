@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import './index.css';
 
+
 const topicsBySubject = {
     'Artificial Intelligence': [
         'Machine Learning Basics',
@@ -17,8 +18,39 @@ const topicsBySubject = {
         'iOS Development',
         'Android Development'
     ],
-    // ... other subjects remain the same
+    'Internet of Things (IOT)': [
+        'IoT Architecture',
+        'Sensor Networks',
+        'IoT Security',
+        'Data Analytics in IoT',
+        'Smart Home Automation',
+        'IoT Protocols',
+        'Edge Computing',
+        'Industrial IoT'
+    ],
+    'Software Engineering': [
+        'Software Development Life Cycle',
+        'Requirements Engineering',
+        'Software Design Patterns',
+        'Software Testing',
+        'Agile Methodology',
+        'DevOps Practices',
+        'Software Project Management',
+        'Software Quality Assurance'
+    ],
+    'Power BI': [
+        'Data Modeling',
+        'DAX Functions',
+        'Power Query',
+        'Data Visualization',
+        'Report Design',
+        'Data Transformation',
+        'Dashboard Creation',
+        'Data Analysis'
+    ]
 };
+
+// ...rest of the component code stays the same
 
 const Dashboard2 = () => {
     const { subject } = useParams();
@@ -54,7 +86,7 @@ const Dashboard2 = () => {
     return (
         <div className="dashboard2-container">
             <div className="header">
-                <img src="/logo.png" alt="College Logo" className="college-logo" />
+                <img src="/logo.jpg" alt="College Logo" className="college-logo" />
                 <div className="header-content">
                     <h2 className="title">Topics for {matchedSubject || "Unknown Subject"}</h2>
                     <button onClick={handleBack} className="back-button">

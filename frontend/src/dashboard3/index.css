@@ -1,0 +1,75 @@
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 15px;
+  }
+  
+  .title-section {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+  }
+  
+  .timer {
+    font-size: 18px;
+    font-weight: bold;
+    color: #ff5722;
+    margin-top: 5px;
+  }
+  
+  .college-logo {
+    width: 70px;
+    height: auto;
+    margin-right: 10px;
+  }
+  
+  .buttons-group {
+    margin: 20px 0;
+    display: flex;
+    gap: 15px;
+    justify-content: flex-end;
+  }
+  
+  .regenerate-button,
+  .end-exam-button {
+    padding: 10px 16px;
+    border: none;
+    border-radius: 10px;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s;
+  }
+  
+  .regenerate-button {
+    background-color: #28a745;
+    color: white;
+  }
+  
+  .regenerate-button:hover {
+    background-color: #218838;
+  }
+  
+  .end-exam-button {
+    background-color: #dc3545;
+    color: white;
+  }
+  
+  .end-exam-button:hover {
+    background-color: #c82333;
+  }
+  
+  .question-list {
+    list-style-type: none;
+    padding: 0;
+  }
+  
+  .question-item {
+    padding: 12px;
+    margin-bottom: 10px;
+    background-color: #f2f2f2;
+    border-radius: 10px;
+    font-size: 16px;
+    border-left: 6px solid #4caf50;
+  }

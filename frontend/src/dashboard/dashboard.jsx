@@ -21,14 +21,20 @@ const Dashboard = () => {
     }
   }, [navigate]);
 
-  const handleSubjectClick = (subject) => {
-    navigate(`/dashboard2/${encodeURIComponent(subject)}`);
-  };
+  // ... existing imports
+
+const handleSubjectClick = (subject) => {
+    // Fix: Properly encode the subject for the URL
+    const encodedSubject = encodeURIComponent(subject);
+    navigate(`/dashboard2/${encodedSubject}`);
+};
+
+// ... rest of the component code
 
   return (
     <div className="dashboard-container">
       <div className="header">
-        <img src="/logo.png" alt="College Logo" className="college-logo" />
+        <img src="/logo.jpg" alt="College Logo" className="college-logo" />
         <h2 className="title">Subjects</h2>
         <button 
           className="logout-button"
