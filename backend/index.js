@@ -64,6 +64,41 @@ app.post("/api/generate-questions", async (req, res) => {
         res.status(500).json({ error: "Failed to fetch questions from Gemini API." });
     }
 });
+// ...existing imports and code...
+
+// Add this new endpoint for submitting answers
+app.post("/api/submit-answers", async (req, res) => {
+    const { topic, answers, timeSpent } = req.body;
+
+    if (!topic || !answers) {
+        return res.status(400).json({ 
+            success: false,
+            message: "Topic and answers are required" 
+        });
+    }
+
+    try {
+        // Here you could add code to save answers to database
+        // For now, we'll just send a success response
+        res.json({ 
+            success: true,
+            message: "Answers submitted successfully",
+            data: {
+                topic,
+                answersCount: Object.keys(answers).length,
+                timeSpent
+            }
+        });
+    } catch (err) {
+        console.error("Error submitting answers:", err);
+        res.status(500).json({ 
+            success: false,
+            message: "Failed to submit answers" 
+        });
+    }
+});
+
+// ...rest of your existing code...
 
 // Error handling middleware
 app.use((err, req, res, next) => {

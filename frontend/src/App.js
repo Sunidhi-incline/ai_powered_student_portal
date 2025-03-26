@@ -7,6 +7,8 @@ import Signup from './pages/Signup';
 import Dashboard from './dashboard/dashboard';
 import Dashboard2 from './dashboard2/dashboard2';
 import Dashboard3 from './dashboard3/dashboard3';
+import Dashboard4 from './dashboard4/dashboard4';
+
 
 const ProtectedRoute = ({ children }) => {
   const token = localStorage.getItem('token');
@@ -49,7 +51,14 @@ function App() {
           </ProtectedRoute>
         } 
       />
-      
+     <Route 
+  path="/dashboard4"
+  element={
+    <ProtectedRoute>
+      <Dashboard4 />
+    </ProtectedRoute>
+  } 
+/>
       {/* Catch-all route */}
       <Route path="*" element={<Navigate to="/login" replace />} />
     </Routes>

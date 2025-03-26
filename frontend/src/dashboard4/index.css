@@ -1,0 +1,114 @@
+.dashboard4-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding: 1rem;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.college-logo {
+    width: 60px;
+    height: auto;
+}
+
+.timer-section {
+    text-align: right;
+}
+
+.timer {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #dc3545;
+}
+
+.questions-container {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.question-box {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.question {
+    font-size: 1.1rem;
+    color: #333;
+    margin-bottom: 1rem;
+    line-height: 1.5;
+}
+
+.question-number {
+    font-weight: bold;
+    margin-right: 0.5rem;
+    color: #007bff;
+}
+
+.answer-input {
+    width: 100%;
+    padding: 1rem;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 1rem;
+    resize: vertical;
+    min-height: 120px;
+    transition: border-color 0.3s;
+}
+
+.answer-input:focus {
+    outline: none;
+    border-color: #007bff;
+}
+
+.submit-section {
+    margin-top: 2rem;
+    text-align: center;
+}
+
+.submit-button {
+    padding: 1rem 2rem;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.submit-button:hover {
+    background-color: #218838;
+}
+
+.error-message {
+    text-align: center;
+    color: #dc3545;
+    font-size: 1.2rem;
+    margin-top: 2rem;
+}
+
+@media (max-width: 768px) {
+    .dashboard4-container {
+        padding: 1rem;
+    }
+    
+    .question {
+        font-size: 1rem;
+    }
+    
+    .answer-input {
+        min-height: 100px;
+    }
+}
