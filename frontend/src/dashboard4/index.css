@@ -1,12 +1,11 @@
 .dashboard4-container {
-    max-width: 1000px;
-    margin: 0 auto;
+    max-width: 1200px;
+    margin: 2rem auto;
     padding: 2rem;
 }
 
 .header {
     display: flex;
-    justify-content: space-between;
     align-items: center;
     margin-bottom: 2rem;
     padding: 1rem;
@@ -18,97 +17,98 @@
 .college-logo {
     width: 60px;
     height: auto;
+    margin-right: 1rem;
 }
 
-.timer-section {
-    text-align: right;
+.header-content {
+    flex: 1;
 }
 
 .timer {
     font-size: 1.2rem;
-    font-weight: bold;
     color: #dc3545;
+    font-weight: bold;
 }
 
-.questions-container {
+.answers-section {
     display: flex;
     flex-direction: column;
     gap: 2rem;
 }
 
-.question-box {
+.answer-container {
     background: white;
     padding: 1.5rem;
     border-radius: 10px;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
-.question {
-    font-size: 1.1rem;
-    color: #333;
-    margin-bottom: 1rem;
-    line-height: 1.5;
-}
-
-.question-number {
-    font-weight: bold;
-    margin-right: 0.5rem;
-    color: #007bff;
-}
-
-.answer-input {
+textarea {
     width: 100%;
+    min-height: 150px;
     padding: 1rem;
     border: 1px solid #ddd;
-    border-radius: 8px;
+    border-radius: 5px;
     font-size: 1rem;
     resize: vertical;
-    min-height: 120px;
-    transition: border-color 0.3s;
 }
 
-.answer-input:focus {
-    outline: none;
-    border-color: #007bff;
+.grade-feedback {
+    margin-top: 1rem;
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 5px;
 }
 
-.submit-section {
+.score {
+    font-weight: bold;
+    color: #28a745;
+}
+
+.feedback {
+    margin-top: 0.5rem;
+    color: #666;
+}
+
+.summary-section {
     margin-top: 2rem;
-    text-align: center;
+    padding: 1.5rem;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.actions {
+    margin-top: 2rem;
+    display: flex;
+    justify-content: center;
 }
 
 .submit-button {
     padding: 1rem 2rem;
-    background-color: #28a745;
+    background: #28a745;
     color: white;
     border: none;
-    border-radius: 8px;
-    font-size: 1.1rem;
+    border-radius: 5px;
     cursor: pointer;
-    transition: background-color 0.3s;
+    font-size: 1.1rem;
+    transition: background 0.3s;
 }
 
 .submit-button:hover {
-    background-color: #218838;
+    background: #218838;
+}
+
+.submit-button:disabled {
+    background: #6c757d;
+    cursor: not-allowed;
 }
 
 .error-message {
+    margin-top: 1rem;
+    padding: 1rem;
+    background: #dc3545;
+    color: white;
+    border-radius: 5px;
     text-align: center;
-    color: #dc3545;
-    font-size: 1.2rem;
-    margin-top: 2rem;
-}
-
-@media (max-width: 768px) {
-    .dashboard4-container {
-        padding: 1rem;
-    }
-    
-    .question {
-        font-size: 1rem;
-    }
-    
-    .answer-input {
-        min-height: 100px;
-    }
 }

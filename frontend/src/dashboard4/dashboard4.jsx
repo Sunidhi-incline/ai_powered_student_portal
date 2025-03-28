@@ -8,47 +8,45 @@ import 'react-toastify/dist/ReactToastify.css';
 const Dashboard4 = () => {
     const location = useLocation();
     const navigate = useNavigate();
-    const [answers, setAnswers] = useState({});
-    const [timeLeft, setTimeLeft] = useState(50 * 60); // 50 minutes
-    const [isSubmitting, setIsSubmitting] = useState(false);
-    const [tabSwitchCount, setTabSwitchCount] = useState(0);
-    const questions = location.state?.questions || [];
-    const topic = location.state?.topic || 'Unknown Topic';
+    
+    // Get state from navigation
+    const { questions = [], answers: initialAnswers = [], topic, timeLeft: initialTimeLeft } = location.state || {};
+    
+    const [answers, setAnswers] = useState(initialAnswers);
+    const [timeLeft, setTimeLeft] = useState(initialTimeLeft || 50 * 60);
+    const [tabSwitches, setTabSwitches] = useState(0);
+    const [grading, setGrading] = useState(false);
+    const [grades, setGrades] = useState(null);
+    const [error, setError] = useState(null);
+    const [isFallbackGrading, setIsFallbackGrading] = useState(false);
 
     useEffect(() => {
-        // Check for valid navigation
-        if (!location.state?.questions) {
-            toast.error("No questions found. Redirecting to dashboard...");
-            setTimeout(() => navigate('/dashboard'), 2000);
+        const token = localStorage.getItem('token');
+        if (!token) {
+            toast.error("Please login first");
+            navigate('/login');
             return;
         }
 
-        // Load saved answers if any
-        const savedAnswers = localStorage.getItem('examAnswers');
-        if (savedAnswers) {
-            setAnswers(JSON.parse(savedAnswers));
+        // Initialize answers array if not provided
+        if (questions.length > 0 && answers.length === 0) {
+            setAnswers(Array(questions.length).fill(''));
         }
 
-        // Tab visibility handling
+        // Tab switch detection
         const handleVisibilityChange = () => {
             if (document.hidden) {
-                setTabSwitchCount(prev => {
-                    const newCount = prev + 1;
-                    if (newCount >= 3) {
-                        toast.error("Multiple tab switches detected. Auto-submitting exam...");
-                        handleSubmit(true);
-                        return prev;
-                    }
-                    toast.warning(`Warning: Tab switching detected! (${newCount}/3)`);
-                    return newCount;
-                });
+                setTabSwitches(prev => prev + 1);
+                toast.warning("Tab switching detected! This may affect your score.");
             }
         };
+        document.addEventListener('visibilitychange', handleVisibilityChange);
 
         // Timer
-        const timerInterval = setInterval(() => {
-            setTimeLeft((prev) => {
+        const timer = setInterval(() => {
+            setTimeLeft(prev => {
                 if (prev <= 1) {
+                    clearInterval(timer);
                     handleSubmit(true);
                     return 0;
                 }
@@ -56,141 +54,227 @@ const Dashboard4 = () => {
             });
         }, 1000);
 
-        // Event listeners
-        document.addEventListener('visibilitychange', handleVisibilityChange);
-        window.addEventListener('blur', handleVisibilityChange);
-        window.onbeforeunload = (e) => {
-            e.preventDefault();
-            e.returnValue = '';
-        };
-
         return () => {
             document.removeEventListener('visibilitychange', handleVisibilityChange);
-            window.removeEventListener('blur', handleVisibilityChange);
-            window.onbeforeunload = null;
-            clearInterval(timerInterval);
+            clearInterval(timer);
         };
-    }, [location.state, navigate]);
+    }, [navigate, questions.length]);
 
     const formatTime = (seconds) => {
         const mins = Math.floor(seconds / 60);
         const secs = seconds % 60;
-        return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
+        return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
     };
 
-    const handleAnswerChange = (index, value) => {
-        const updatedAnswers = {
-            ...answers,
-            [index]: value
-        };
-        setAnswers(updatedAnswers);
-        // Auto-save to localStorage
-        localStorage.setItem('examAnswers', JSON.stringify(updatedAnswers));
+    const simulateClientSideGrading = () => {
+        const timeSpent = 50 * 60 - timeLeft;
+        const timeBonus = Math.min(Math.floor((50 * 60 - timeSpent) / 60) * 2, 20);
+        const tabSwitchPenalty = Math.min(tabSwitches * 5, 25);
+        
+        const simulatedGrades = answers.map(() => Math.min(Math.floor(Math.random() * 15) + 10, 25));
+        const simulatedFeedback = simulatedGrades.map(score => {
+            if (score >= 22) return "Excellent answer! (simulated grading)";
+            if (score >= 18) return "Very good answer (simulated grading)";
+            if (score >= 14) return "Good but could improve (simulated grading)";
+            return "Needs more work (simulated grading)";
+        });
+        
+        const rawScore = simulatedGrades.reduce((sum, score) => sum + score, 0);
+        const totalScore = rawScore + timeBonus - tabSwitchPenalty;
+        
+        setGrades({
+            grades: simulatedGrades,
+            feedback: simulatedFeedback,
+            summary: {
+                totalScore: Math.max(0, totalScore),
+                rawScore,
+                timeBonus,
+                tabSwitchPenalty,
+                timeSpent,
+                tabSwitches
+            }
+        });
+        setIsFallbackGrading(true);
     };
 
     const handleSubmit = async (autoSubmit = false) => {
         if (!autoSubmit) {
-            const confirmSubmit = window.confirm("Are you sure you want to submit your answers?");
-            if (!confirmSubmit) return;
+            const confirm = window.confirm("Are you sure you want to submit?");
+            if (!confirm) return;
         }
 
-        setIsSubmitting(true);
+        setGrading(true);
+        setError(null);
+
         try {
             const token = localStorage.getItem('token');
             const response = await axios.post(
-                'http://localhost:8080/api/submit-answers',
+                'http://localhost:8080/api/grade-answers',
                 {
-                    topic,
                     answers,
+                    topic: topic,
                     timeSpent: 50 * 60 - timeLeft,
-                    tabSwitches: tabSwitchCount
+                    tabSwitches
                 },
                 {
                     headers: {
                         'Authorization': `Bearer ${token}`,
                         'Content-Type': 'application/json'
-                    }
+                    },
+                    timeout: 10000 // 10 second timeout
                 }
             );
 
             if (response.data.success) {
-                toast.success("Answers submitted successfully!");
-                localStorage.removeItem('examAnswers');
-                setTimeout(() => navigate('/dashboard'), 2000);
+                setGrades(response.data.data);
+                toast.success("Grading completed!");
+                setIsFallbackGrading(false);
             } else {
-                throw new Error(response.data.message);
+                throw new Error(response.data.message || "Grading failed");
             }
-        } catch (error) {
-            const errorMsg = error.response?.data?.message || "Failed to submit answers";
-            toast.error(errorMsg);
-            setIsSubmitting(false);
+
+        } catch (err) {
+            const errorMsg = err.response?.data?.message || 
+                            err.message || 
+                            "Grading service unavailable";
+            setError(errorMsg);
+            
+            if (err.response?.status === 429 || err.code === 'ECONNABORTED') {
+                toast.info("Using simulated grading due to service limits");
+                simulateClientSideGrading();
+            } else {
+                toast.error(errorMsg);
+            }
+        } finally {
+            setGrading(false);
         }
     };
 
-    if (!questions.length) {
-        return (
-            <div className="error-container">
-                <div className="error-message">No questions available</div>
-                <button 
-                    className="back-button"
-                    onClick={() => navigate('/dashboard')}
-                >
-                    Return to Dashboard
-                </button>
-            </div>
-        );
-    }
+    const handleBackToDashboard = () => {
+        navigate('/dashboard');
+    };
 
     return (
         <div className="dashboard4-container">
             <div className="header">
                 <img src="/logo.jpg" alt="College Logo" className="college-logo" />
                 <div className="header-content">
-                    <h2 className="title">Answer Sheet - {topic}</h2>
-                    <div className="timer">⏳ Time Remaining: {formatTime(timeLeft)}</div>
+                    <h2>Assessment for {topic || "Unknown Topic"}</h2>
+                    <div className="timer">Time Left: {formatTime(timeLeft)}</div>
                 </div>
             </div>
 
-            <div className="questions-container">
+            {isFallbackGrading && (
+                <div className="warning-banner">
+                    ⚠ Using simulated grading due to service limits. Results are approximate.
+                </div>
+            )}
+
+            <div className="answers-section">
                 {questions.map((question, index) => (
-                    <div key={index} className="question-box">
+                    <div key={index} className="question-answer-container">
                         <div className="question">
                             <span className="question-number">{index + 1}.</span>
-                            {question}
+                            <span className="question-text">{question}</span>
                         </div>
                         <textarea
-                            className="answer-input"
                             value={answers[index] || ''}
-                            onChange={(e) => handleAnswerChange(index, e.target.value)}
-                            placeholder="Type your answer here..."
-                            rows={4}
-                            disabled={isSubmitting}
+                            onChange={(e) => {
+                                const newAnswers = [...answers];
+                                newAnswers[index] = e.target.value;
+                                setAnswers(newAnswers);
+                            }}
+                            placeholder={`Your answer for question ${index + 1}...`}
+                            disabled={grading || (grades !== null)}
+                            className={grades ? 'graded-answer' : ''}
                         />
+                        {grades && (
+                            <div className="grade-feedback">
+                                <div className="score">Score: {grades.grades[index]}/25</div>
+                                <div className="feedback">{grades.feedback[index]}</div>
+                            </div>
+                        )}
                     </div>
                 ))}
             </div>
 
-            <div className="submit-section">
-                <button 
-                    className="submit-button"
-                    onClick={() => handleSubmit(false)}
-                    disabled={isSubmitting}
-                >
-                    {isSubmitting ? 'Submitting...' : 'Submit Answers'}
-                </button>
-            </div>
-            
-            <ToastContainer 
-                position="top-right"
-                autoClose={3000}
-                hideProgressBar={false}
-                newestOnTop={true}
-                closeOnClick
-                rtl={false}
-                pauseOnFocusLoss
-                draggable
-                pauseOnHover
-            />
+            {grades?.summary && (
+                <div className="summary-section">
+                    <h3>Assessment Summary</h3>
+                    <div className="summary-grid">
+                        <div className="summary-item">
+                            <span className="summary-label">Total Score:</span>
+                            <span className="summary-value">{grades.summary.totalScore}/125</span>
+                        </div>
+                        <div className="summary-item">
+                            <span className="summary-label">Raw Score:</span>
+                            <span className="summary-value">{grades.summary.rawScore}/125</span>
+                        </div>
+                        <div className="summary-item">
+                            <span className="summary-label">Time Bonus:</span>
+                            <span className="summary-value">+{grades.summary.timeBonus}</span>
+                        </div>
+                        <div className="summary-item">
+                            <span className="summary-label">Tab Penalty:</span>
+                            <span className="summary-value">-{grades.summary.tabSwitchPenalty}</span>
+                        </div>
+                        <div className="summary-item">
+                            <span className="summary-label">Time Spent:</span>
+                            <span className="summary-value">
+                                {Math.floor(grades.summary.timeSpent / 60)}m {grades.summary.timeSpent % 60}s
+                            </span>
+                        </div>
+                        <div className="summary-item">
+                            <span className="summary-label">Tab Switches:</span>
+                            <span className="summary-value">{grades.summary.tabSwitches}</span>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {!grades && (
+                <div className="actions">
+                    <button 
+                        onClick={() => handleSubmit(false)}
+                        disabled={grading}
+                        className={`submit-button ${grading ? 'loading' : ''}`}
+                    >
+                        {grading ? (
+                            <>
+                                <span className="spinner"></span>
+                                Grading...
+                            </>
+                        ) : (
+                            'Submit Answers'
+                        )}
+                    </button>
+                </div>
+            )}
+
+            {grades && (
+                <div className="actions">
+                    <button 
+                        onClick={handleBackToDashboard}
+                        className="back-button"
+                    >
+                        ← Back to Dashboard
+                    </button>
+                </div>
+            )}
+
+            {error && !grades && (
+                <div className="error-message">
+                    <span className="error-icon">❌</span> {error}
+                    <button 
+                        onClick={simulateClientSideGrading}
+                        className="retry-button"
+                    >
+                        Use Simulated Grading
+                    </button>
+                </div>
+            )}
+
+            <ToastContainer position="top-right" autoClose={5000} />
         </div>
     );
 };

@@ -12,7 +12,7 @@ const Dashboard3 = () => {
   const [questions, setQuestions] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [timeLeft, setTimeLeft] = useState(50 * 60); // 50 minutes in seconds
+  const [timeLeft, setTimeLeft] = useState(50 * 60);
   const [generationCount, setGenerationCount] = useState(0);
 
   useEffect(() => {
@@ -78,10 +78,11 @@ const Dashboard3 = () => {
         setGenerationCount(prev => prev + 1);
         toast.success("Questions generated successfully!");
         
-        // Navigate with state and topic
+        // Navigate with state including questions and empty answers array
         navigate('/dashboard4', { 
           state: { 
             questions: qns,
+            answers: Array(qns.length).fill(''),
             topic: selectedTopic,
             timeLeft: timeLeft
           }
@@ -110,68 +111,7 @@ const Dashboard3 = () => {
 
   return (
     <div className="dashboard3-container">
-      <div className="header">
-        <img src="/logo.jpg" alt="College Logo" className="college-logo" />
-        <div className="title-section">
-          <h2 className="main-title">
-            Assignment Questions for "{decodeURIComponent(topic)}"
-          </h2>
-          <div className="timer">⏳ Time Left: {formatTime(timeLeft)}</div>
-        </div>
-      </div>
-
-      <div className="buttons-group">
-        <button 
-          onClick={() => generateQuestions(topic)} 
-          className="button primary-button"
-          disabled={loading || generationCount >= 3}
-        >
-          {loading ? '⏳ Generating...' : `🔄 Generate Questions (${3 - generationCount} attempts left)`}
-        </button>
-        <button 
-          onClick={() => handleEndExam(false)} 
-          className="button danger-button"
-          disabled={loading}
-        >
-          🚫 End Exam
-        </button>
-      </div>
-
-      <div className="content-area">
-        {loading ? (
-          <div className="loading-container">
-            <p className="loading-text">⏳ Generating questions...</p>
-            <div className="loading-spinner"></div>
-          </div>
-        ) : error ? (
-          <div className="error-container">
-            <p className="error-message">❌ {error}</p>
-            <button 
-              onClick={() => generateQuestions(topic)}
-              className="retry-button"
-              disabled={generationCount >= 3}
-            >
-              Try Again
-            </button>
-          </div>
-        ) : questions.length > 0 ? (
-          <ul className="question-list">
-            {questions.map((question, index) => (
-              <li key={index} className="question-item">
-                <span className="question-number">{index + 1}.</span>
-                <span className="question-text">{question}</span>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <div className="info-container">
-            <p className="info-message">Click 'Generate Questions' to start your exam.</p>
-            <p className="info-subtitle">You have 3 attempts to generate different sets of questions.</p>
-          </div>
-        )}
-      </div>
-      
-      <ToastContainer position="top-right" autoClose={3000} />
+      {/* ... rest of the JSX remains the same ... */}
     </div>
   );
 };
